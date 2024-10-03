@@ -1,9 +1,22 @@
 LOCAL_PATH := $(call my-dir)
 
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libaudio_extn_headers
+LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/inc
+
+LOCAL_VENDOR_MODULE := true
+
+include $(BUILD_HEADER_LIBRARY)
+
 #-------------------------------------------
 #            Build HFP LIB
 #-------------------------------------------
 include $(CLEAR_VARS)
+
+ifeq ($(SOONG_CONFIG_android_hardware_audio_run_64bit), true)
+LOCAL_MULTILIB := 64
+endif
 
 LOCAL_MODULE := libhfp_pal
 LOCAL_VENDOR_MODULE := true
@@ -30,21 +43,24 @@ LOCAL_SHARED_LIBRARIES := \
     libar-pal
 
 LOCAL_C_INCLUDES := \
-    $(call project-path-for,qcom-audio)/pal \
-    $(call project-path-for,qcom-audio)/primary-hal/hal \
-    $(call project-path-for,qcom-audio)/primary-hal/hal/audio_extn \
+    $(LOCAL_PATH)/inc \
     external/expat/lib \
     system/media/audio_utils/include \
     $(call include-path-for, audio-route) \
 
 LOCAL_HEADER_LIBRARIES += libhardware_headers
 LOCAL_HEADER_LIBRARIES += libsystem_headers
+LOCAL_HEADER_LIBRARIES += libaudio_hal_headers
 include $(BUILD_SHARED_LIBRARY)
 
 #-------------------------------------------
 #            Build FM LIB
 #-------------------------------------------
 include $(CLEAR_VARS)
+
+ifeq ($(SOONG_CONFIG_android_hardware_audio_run_64bit), true)
+LOCAL_MULTILIB := 64
+endif
 
 LOCAL_MODULE := libfmpal
 LOCAL_VENDOR_MODULE := true
@@ -67,15 +83,15 @@ LOCAL_SHARED_LIBRARIES := \
     libar-pal
 
 LOCAL_C_INCLUDES := \
-    $(call project-path-for,qcom-audio)/pal \
-    $(call project-path-for,qcom-audio)/primary-hal/hal \
-    $(call project-path-for,qcom-audio)/primary-hal/hal/audio_extn \
+    $(LOCAL_PATH)/inc \
     external/expat/lib \
     system/media/audio_utils/include \
     $(call include-path-for, audio-route) \
 
 LOCAL_HEADER_LIBRARIES += libhardware_headers
 LOCAL_HEADER_LIBRARIES += libsystem_headers
+LOCAL_HEADER_LIBRARIES += libaudio_hal_headers
+LOCAL_HEADER_LIBRARIES += libarpal_headers
 include $(BUILD_SHARED_LIBRARY)
 
 #-------------------------------------------
@@ -97,6 +113,8 @@ LOCAL_CFLAGS := \
 ifneq ($(filter bengal blair,$(TARGET_BOARD_PLATFORM)),)
     LOCAL_CFLAGS += -DQTI_HEALTH
 endif
+
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/inc
 
 LOCAL_SHARED_LIBRARIES := \
     android.hardware.health@1.0 \

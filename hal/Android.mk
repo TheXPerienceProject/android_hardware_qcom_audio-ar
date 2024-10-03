@@ -3,6 +3,16 @@ LOCAL_PATH := $(call my-dir)
 LOCAL_AUDIO_SERVICE_64 := taro parrot bengal holi blair
 
 include $(CLEAR_VARS)
+
+LOCAL_MODULE := libaudio_hal_headers
+LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/inc
+
+LOCAL_VENDOR_MODULE := true
+
+include $(BUILD_HEADER_LIBRARY)
+
+include $(CLEAR_VARS)
+
 ifeq ($(call is-board-platform-in-list,$(LOCAL_AUDIO_SERVICE_64)), true)
 LOCAL_MODULE       := android.hardware.audio.service_64.rc
 else
@@ -25,12 +35,24 @@ LOCAL_ARM_MODE := arm
 
 LOCAL_VINTF_FRAGMENTS := ../configs/common/manifest_non_qmaa.xml
 
+ifeq ($(SOONG_CONFIG_android_hardware_audio_run_64bit), true)
+LOCAL_MULTILIB := 64
+endif
+
 ifeq ($(strip $(AUDIO_FEATURE_ENABLED_LSM_HIDL)),true)
 LOCAL_VINTF_FRAGMENTS += ../configs/common/manifest_non_qmaa_extn.xml
 endif
 
 ifeq ($(strip $(AUDIO_FEATURE_ENABLED_EC_REF_CAPTURE)),true)
 LOCAL_CFLAGS += -DEC_REF_CAPTURE_ENABLED
+endif
+
+ifeq ($(strip $(AUDIO_FEATURE_ENABLED_DYNAMIC_SR)),true)
+LOCAL_CFLAGS += -DDYNAMIC_SR_ENABLED
+endif
+
+ifeq ($(strip $(AUDIO_FEATURE_ENABLED_TRUE_STEREO)),true)
+LOCAL_CFLAGS += -DTRUE_STEREO_ENABLED
 endif
 
 LOCAL_CFLAGS += -Wno-macro-redefined
@@ -51,13 +73,10 @@ LOCAL_CFLAGS += -Wno-unused-local-typedef
 LOCAL_CPPFLAGS += -fexceptions
 
 LOCAL_C_INCLUDES += \
+    $(LOCAL_PATH)/inc \
     system/media/audio_utils/include \
     external/expat/lib \
-    vendor/qcom/opensource/core-utils/fwk-detect \
-    $(call project-path-for,qcom-audio)/pal \
-    $(call include-path-for, audio-effects) \
-    $(LOCAL_PATH)/audio_extn \
-    $(TOP)/vendor/qcom/opensource/agm/ipc/HwBinders/agm_ipc_client/
+    $(call include-path-for, audio-effects)
 
 LOCAL_SRC_FILES := \
     AudioStream.cpp \
@@ -67,7 +86,12 @@ LOCAL_SRC_FILES := \
     audio_extn/Gain.cpp \
     audio_extn/AudioExtn.cpp
 
-LOCAL_HEADER_LIBRARIES := libhardware_headers qti_audio_kernel_uapi libagm_headers
+LOCAL_HEADER_LIBRARIES := \
+    libhardware_headers \
+    qti_audio_kernel_uapi \
+    libaudio_extn_headers \
+    libagmclient_headers \
+    libarpal_headers
 
 LOCAL_SHARED_LIBRARIES := \
     libbase \
@@ -100,7 +124,7 @@ ifeq ($(strip $(AUDIO_FEATURE_ENABLED_AGM_HIDL)),true)
 
   LOCAL_CFLAGS += -DAGM_HIDL_ENABLED
   LOCAL_C_INCLUDES += \
-    $(TOP)/$(call project-path-for,qcom-audio)/agm/ipc/HwBinders/agm_ipc_client/
+    $(TOP)/vendor/qcom/opensource/agm/ipc/HwBinders/agm_ipc_client/
 
   LOCAL_HEADER_LIBRARIES += \
     libagm_headers

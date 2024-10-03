@@ -39,18 +39,23 @@ endif
 
 LOCAL_HEADER_LIBRARIES := libsystem_headers \
                           libhardware_headers
+LOCAL_HEADER_LIBRARIES += libarpal_headers
+
 LOCAL_SHARED_LIBRARIES := \
     libcutils \
     liblog \
     libdl \
     libar-pal
 
+ifeq ($(SOONG_CONFIG_android_hardware_audio_run_64bit), true)
+LOCAL_MULTILIB := 64
+endif
+
 LOCAL_MODULE_RELATIVE_PATH := soundfx
 LOCAL_MODULE:= libqcomvisualizer
 LOCAL_VENDOR_MODULE := true
 
 LOCAL_C_INCLUDES := \
-    $(call project-path-for,qcom-audio)/pal \
     $(call include-path-for, audio-effects)
 
 LOCAL_CFLAGS += -Wno-unused-variable

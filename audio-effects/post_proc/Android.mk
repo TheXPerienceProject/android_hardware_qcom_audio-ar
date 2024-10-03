@@ -67,7 +67,9 @@ LOCAL_HEADER_LIBRARIES := libhardware_headers \
                           libarpal_headers \
                           libacdb_headers \
                           libutils_headers \
-                          qti_audio_kernel_uapi
+                          qti_audio_kernel_uapi \
+                          libaudio_extn_headers \
+                          libaudio_hal_headers
 
 LOCAL_SHARED_LIBRARIES := \
         libcutils \
@@ -77,6 +79,10 @@ LOCAL_SHARED_LIBRARIES := \
 
 LOCAL_MODULE_TAGS := optional
 
+ifeq ($(SOONG_CONFIG_android_hardware_audio_run_64bit), true)
+LOCAL_MULTILIB := 64
+endif
+
 LOCAL_MODULE_RELATIVE_PATH := soundfx
 LOCAL_MODULE:= libqcompostprocbundle
 LOCAL_VENDOR_MODULE := true
@@ -85,17 +91,13 @@ LOCAL_MODULE_OWNER := qti
 LOCAL_ADDITIONAL_DEPENDENCIES += $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr
 
 LOCAL_C_INCLUDES := \
-        $(call project-path-for,qcom-audio)/primary-hal/hal \
         $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include \
-        $(call project-path-for,qcom-audio)/pal \
         $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include/audio \
         $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/techpack/audio/include \
-        $(call include-path-for, audio-effects) \
-        $(call project-path-for,qcom-audio)/primary-hal/hal/audio_extn/
+        $(call include-path-for, audio-effects)
 
 ifeq ($(strip $(AUDIO_FEATURE_ENABLED_DLKM)),true)
   LOCAL_HEADER_LIBRARIES += audio_kernel_headers
-  LOCAL_C_INCLUDES += $(TARGET_OUT_INTERMEDIATES)/vendor/qcom/opensource/audio-kernel/include
 endif
 
 ifeq ($(TARGET_COMPILE_WITH_MSM_KERNEL),true)
@@ -178,7 +180,9 @@ LOCAL_CFLAGS+= -O2 -fvisibility=hidden
 LOCAL_HEADER_LIBRARIES := libhardware_headers \
                           libsystem_headers \
                           libarpal_headers \
-                          libutils_headers
+                          libutils_headers \
+                          libaudio_extn_headers \
+                          libaudio_hal_headers
 
 LOCAL_SHARED_LIBRARIES := \
         libcutils \
@@ -186,6 +190,10 @@ LOCAL_SHARED_LIBRARIES := \
         libdl \
         libar-pal \
         libaudioutils
+
+ifeq ($(SOONG_CONFIG_android_hardware_audio_run_64bit), true)
+LOCAL_MULTILIB := 64
+endif
 
 LOCAL_MODULE_RELATIVE_PATH := soundfx
 LOCAL_MODULE:= libvolumelistener
@@ -195,19 +203,15 @@ LOCAL_MODULE_OWNER := qti
 LOCAL_ADDITIONAL_DEPENDENCIES += $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr
 
 LOCAL_C_INCLUDES := \
-        $(call project-path-for,qcom-audio)/primary-hal/hal \
-        $(call project-path-for,qcom-audio)/pal \
         $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include \
         $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include/audio \
         $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/techpack/audio/include \
         $(call include-path-for, audio-effects) \
         $(call include-path-for, audio-route) \
-        $(call project-path-for,qcom-audio)/primary-hal/hal/audio_extn \
         system/media/audio_utils/include
 
 ifeq ($(strip $(AUDIO_FEATURE_ENABLED_DLKM)),true)
   LOCAL_HEADER_LIBRARIES += audio_kernel_headers
-  LOCAL_C_INCLUDES += $(TARGET_OUT_INTERMEDIATES)/vendor/qcom/opensource/audio-kernel/include
 endif
 
 ifeq ($(TARGET_COMPILE_WITH_MSM_KERNEL),true)

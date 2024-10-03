@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2021, The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022, 2024, Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -431,6 +431,11 @@ int AudioVoice::RouteStream(const std::set<audio_devices_t>& rx_devices) {
 
     device_count = tx_devices.size() > rx_devices.size() ? tx_devices.size() : rx_devices.size();
 
+    if (IsAnyCallActive() && device_count == 2) {
+        AHAL_ERR("Invalid combo device (%d) for voice call",
+                  AudioExtn::get_device_types(rx_devices));
+        goto exit;
+    }
     pal_device_ids = (pal_device_id_t *)calloc(1, device_count * sizeof(pal_device_id_t));
     if (!pal_device_ids) {
         AHAL_ERR("fail to allocate memory for pal device array");
@@ -679,9 +684,9 @@ int AudioVoice::VoiceStart(voice_session_t *session) {
     /*set custom key for hac mode*/
     if (session && session->hac && palDevices[1].id == 
         PAL_DEVICE_OUT_HANDSET) {
-        strlcpy(palDevices[0].custom_config.custom_key, "HAC",
+        strlcat(palDevices[0].custom_config.custom_key, "HAC;",
                     sizeof(palDevices[0].custom_config.custom_key));
-        strlcpy(palDevices[1].custom_config.custom_key, "HAC",
+        strlcat(palDevices[1].custom_config.custom_key, "HAC;",
                     sizeof(palDevices[1].custom_config.custom_key));
         AHAL_INFO("Setting custom key as %s", palDevices[0].custom_config.custom_key);
     }
@@ -945,9 +950,9 @@ int AudioVoice::VoiceSetDevice(voice_session_t *session) {
     /*set or remove custom key for hac mode*/
     if (session && session->hac && palDevices[1].id == 
         PAL_DEVICE_OUT_HANDSET) {
-        strlcpy(palDevices[0].custom_config.custom_key, "HAC",
+        strlcat(palDevices[0].custom_config.custom_key, "HAC;",
                     sizeof(palDevices[0].custom_config.custom_key));
-        strlcpy(palDevices[1].custom_config.custom_key, "HAC",
+        strlcat(palDevices[1].custom_config.custom_key, "HAC;",
                     sizeof(palDevices[1].custom_config.custom_key));
             AHAL_INFO("Setting custom key as %s", palDevices[0].custom_config.custom_key);
     } else {
