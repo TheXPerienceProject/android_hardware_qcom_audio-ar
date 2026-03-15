@@ -47,6 +47,7 @@ cc_library_shared {
     ],
 
     header_libs: [
+        "libarpal_headers",
         "audio_kernel_headers",
         "libacdb_headers",
         "libaudio_extn_headers",
@@ -95,6 +96,7 @@ cc_library_shared {
     srcs: ["volume_listener.c"],
 
     header_libs: [
+        "libarpal_headers",
         "audio_kernel_headers",
         "libaudio_extn_headers",
         "libaudio_hal_headers",
