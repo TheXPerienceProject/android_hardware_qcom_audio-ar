@@ -92,6 +92,7 @@ target_board_platform_cc_library_shared {
     local_include_dirs: ["inc"],
 
     header_libs: [
+        "libarpal_headers",
         "libagm_headers",
         "libaudio_extn_headers",
         "libaudio_system_headers",
