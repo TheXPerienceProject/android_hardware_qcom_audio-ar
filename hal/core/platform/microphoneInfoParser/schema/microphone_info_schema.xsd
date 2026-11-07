@@ -56,7 +56,7 @@ SPDX-License-Identifier: BSD-3-Clause-Clear
 <xs:complexType name="MicrophoneDynamicInfoType">
     <xs:sequence>
         <xs:element name="device" type="PalInDevicesType"/>
-        <xs:element name="MicInfo" type="MicInfoType"/>
+        <xs:element name="MicInfo" type="MicInfoType" maxOccurs="unbounded"/>
     </xs:sequence>
 </xs:complexType>
 
